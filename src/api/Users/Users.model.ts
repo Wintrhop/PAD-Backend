@@ -11,6 +11,7 @@ export interface IUser extends Document {
   role: string;
   profileImg: string;
   studies: IStudy["_id"];
+  studiesAssignment: IStudy["_id"]
   advices: IAdvice["_id"];
   approved: boolean;
   advicerPetition: IAdPet["_id"];
@@ -43,6 +44,10 @@ const userSchema = new Schema(
       required: false,
     },
     studies: {
+      type: [{ type: Schema.Types.ObjectId, ref: "Study" }],
+      required: false,
+    },
+    studiesAssignment:{
       type: [{ type: Schema.Types.ObjectId, ref: "Study" }],
       required: false,
     },

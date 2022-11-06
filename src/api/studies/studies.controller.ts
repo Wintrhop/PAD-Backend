@@ -24,6 +24,30 @@ export async function list(
     res.status(404).json({ message: "Error", error: err.message });
   }
 }
+export async function listAdvicersAssignments(
+  req: RequestWithUserId,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const userAuthId = req.userId;
+    const userList = await User.findById(userAuthId)
+      .select("-_id name email role profileImg ")
+      .populate({
+        path: "studiesAssignment",
+        select: "-user",
+      });
+    if (userList?.role === "client") {
+      throw new Error("Invalid Role");
+    }
+    if (userList?.studiesAssignment.length === 0) {
+      throw new Error("Assignments is empty");
+    }
+    res.status(201).json({ message: "Assignments found", data: userList });
+  } catch (err: any) {
+    res.status(404).json({ message: "Error", error: err.message });
+  }
+}
 export async function show(
   req: RequestWithUserId,
   res: Response,
@@ -62,11 +86,28 @@ export async function create(
     if (!user) {
       throw new Error("Invalid User");
     }
+    const advicers = await User.find({ role: "advicer" });
+    let advicerAssign = advicers[0]._id;
+    let lengthAssign = advicers[0].studiesAssignment;
+
+    for (let i = 0; i < advicers.length; i++) {
+      let forlength = advicers[i].studiesAssignment;
+
+      if (forlength.length < lengthAssign.length) {
+        lengthAssign = forlength.length;
+        advicerAssign = advicers[i]._id;
+      }
+    }
+    const advicer = await User.findById(advicerAssign);
+
     const newStudy = {
       ...data,
       user: userAuthId,
     };
     const studyCreate = await Study.create(newStudy);
+
+    advicer?.studiesAssignment.push(studyCreate._id);
+    await advicer?.save({ validateBeforeSave: false });
     user.studies.push(studyCreate._id);
     await user.save({ validateBeforeSave: false });
 
@@ -114,24 +155,23 @@ export async function destroy(
     const userAuthId = req.userId;
     const { studyId } = req.params;
     const study = await Study.findById(studyId);
-    
+
     if (!study?.user) {
       throw new Error("Study not found");
     }
     if (study?.user.toString() !== userAuthId) {
       throw new Error("Invalid User");
     }
-    const userStudy = await User.findById(userAuthId)
+    const userStudy = await User.findById(userAuthId);
     const newUserStudies = userStudy?.studies.filter(
-      (item:any)=> studyId !== item.toString()
+      (item: any) => studyId !== item.toString()
     );
-    if(userStudy!=undefined)
-    {
-      userStudy.studies = newUserStudies
+    if (userStudy != undefined) {
+      userStudy.studies = newUserStudies;
     }
-    await userStudy?.save({validateBeforeSave:false})
+    await userStudy?.save({ validateBeforeSave: false });
     const studyDelete = await Study.findByIdAndDelete(studyId);
-    
+
     res.status(200).json({ message: "Study deleted", data: studyDelete });
   } catch (err: any) {
     res.status(400).json({
