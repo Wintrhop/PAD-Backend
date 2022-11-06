@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const advices_controller_1 = require("./advices.controller");
+const auth_1 = require("../../utils/auth");
+const formData_1 = require("../../utils/formData");
+const router = (0, express_1.Router)();
+router.route("/:studyId").post(auth_1.auth, formData_1.formData, advices_controller_1.create);
+router.route("/").get(auth_1.auth, advices_controller_1.listUserAdvices);
+router.route("/adm").get(auth_1.auth, advices_controller_1.listAllUsers);
+router.route("/:adviceId").get(auth_1.auth, advices_controller_1.show);
+exports.default = router;
