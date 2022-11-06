@@ -11,7 +11,7 @@ export async function list(
   try {
     const userAuthId = req.userId;
     const userList = await User.findById(userAuthId)
-      .select("-_id -password")
+      .select("-_id -password -advices -advicersApproved")
       .populate({
         path: "studies",
         select: "-user",
@@ -41,7 +41,7 @@ export async function show(
     }
     const studyShow = await Study.findById(studyId).populate({
       path: "user",
-      select: "-_id -password ",
+      select: "-_id -password -studies -advices -role -advicersApproved",
     });
 
     res.status(201).json({ message: "Study found", data: studyShow });

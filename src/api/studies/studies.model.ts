@@ -1,8 +1,10 @@
 import { model, Schema, Document, models } from "mongoose";
+import { IAdvice } from "../advices/advices.model";
 import { IUser } from "../Users/Users.model";
 
 export interface IStudy extends Document {
   user: IUser["_id"];
+  advice: IAdvice["_id"]
   tradLib: string;
   mayorExtension?: string;
   escritura: string;
@@ -14,6 +16,11 @@ const studySchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    advice: {
+      type: Schema.Types.ObjectId,
+      ref: "Advice",
+      required: false,
     },
     tradLib: {
       type: String,

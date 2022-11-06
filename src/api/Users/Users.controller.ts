@@ -1,12 +1,12 @@
 import { Request, Response, NextFunction } from "express";
 import User, { IUser } from "./Users.model";
-import {RequestWithUserId} from "../../utils/auth"
+import { RequestWithUserId } from "../../utils/auth";
+import { transporter, welcome } from "../../utils/mailer";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 const passwordRegex = new RegExp(
   "^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$"
 );
-
 
 export async function signUp(
   req: Request,
@@ -14,24 +14,26 @@ export async function signUp(
   next: NextFunction
 ): Promise<void> {
   try {
-    const { email, name, password } = req.body;
+    const { email, name, password, profileImg } = req.body;
     if (!passwordRegex.test(password)) {
       throw new Error(
         `Password must have at least 8 characters, At least one upper case,
        At least one lower case, At least one digit, At least one special character`
       );
     }
-    const userExist= await User.findOne({ email });
-    if(userExist) {
-      throw new Error("Email already exist");      
+    const userExist = await User.findOne({ email });
+    if (userExist) {
+      throw new Error("Email already exist");
     }
     const encPassword: string = await bcrypt.hash(password, 8);
-    const user: IUser = await User.create({
+    const newUser = {
       name,
       email,
       password: encPassword,
-      rol: "client",
-    });
+      role: "client",
+      profileImg: profileImg,
+    };
+    const user: IUser = await User.create(newUser);
     const token: string = jwt.sign(
       { id: user._id },
       process.env.SECRET_KEY as string,
@@ -39,12 +41,22 @@ export async function signUp(
         expiresIn: 60 * 60 * 24,
       }
     );
+    if (user.profileImg.length === 0) {
+      user.profileImg =
+        "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png";
+    }
+    const role = user.role;
+    const profileImgUser = user.profileImg;
+
+    await transporter.sendMail(welcome(newUser));
     res.status(201).json({
       message: "user created successfully",
-      data: { name, email, token },
+      data: { name, email, token, role, profileImgUser },
     });
   } catch (err: any) {
-    res.status(400).json({ message: "user could not be created", error: err.message });
+    res
+      .status(400)
+      .json({ message: "user could not be created", error: err.message });
   }
 }
 
@@ -71,24 +83,47 @@ export async function signIn(
         expiresIn: 60 * 60 * 24,
       }
     );
-    res
-      .status(201)
-      .json({ message: "User Login Successfully", data: { email, token } });
+
+    const role = user.role;
+    const name = user.name;
+    if (user.profileImg.length === 0) {
+      user.profileImg =
+        "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png";
+    }
+    const profileImg = user.profileImg;
+    res.status(201).json({
+      message: "User Login Successfully",
+      data: { name, email, token, role, profileImg },
+    });
   } catch (err: any) {
-    res.status(400).json({ message: "User could not login", error: err.message });
+    res
+      .status(400)
+      .json({ message: "User could not login", error: err.message });
   }
 }
 
 export async function list(
-  req: Request,
+  req: RequestWithUserId,
   res: Response,
   next: NextFunction
 ): Promise<void> {
   try {
-    const user = await User.find().select("-_id -password");
-    res.status(201).json({ message: "Users found", data: user });
+    const userAuthId = req.userId;
+    const user = await User.findById(userAuthId);
+
+    if (!user) {
+      throw new Error("invalid User");
+    }
+    if (user?.role !== "admin") {
+      throw new Error("Admin required");
+    }
+    const users = await User.find().select("-_id -password");
+    if (users.length === 0) {
+      throw new Error("Users empty");
+    }
+    res.status(201).json({ message: "Users found", data: users });
   } catch (err: any) {
-    res.status(404).json(err.message);
+    res.status(404).json({ message: "Error", error: err.message });
   }
 }
 export async function update(
@@ -112,22 +147,41 @@ export async function update(
   }
 }
 export async function destroy(
-    req: RequestWithUserId,
-    res: Response,
-    next: NextFunction
-  ): Promise<void> {
-    try {
-      const data: object = req.body;
-      const userAuthId = User.findById(req.userId);
-      if (!userAuthId) {
-        throw new Error("User not found");
-      }
-  
-      const user = await User.findByIdAndDelete(req.userId);
-      res.status(200).json({ message: "User Deleted", data: user });
-    } catch (err: any) {
-      res
-        .status(400)
-        .json({ message: "User could not be Updated", error: err.message });
+  req: RequestWithUserId,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const data: object = req.body;
+    const userAuthId = User.findById(req.userId);
+    if (!userAuthId) {
+      throw new Error("User not found");
     }
+
+    const user = await User.findByIdAndDelete(req.userId);
+    res.status(200).json({ message: "User Deleted", data: user });
+  } catch (err: any) {
+    res
+      .status(400)
+      .json({ message: "User could not be Updated", error: err.message });
   }
+}
+export async function advicerPetition(
+  req: RequestWithUserId,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+
+  } catch (err: any) {
+    
+  }
+}
+export async function createAdvicer(
+  req: RequestWithUserId,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+  } catch (err: any) {}
+}
