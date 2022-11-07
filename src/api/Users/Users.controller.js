@@ -21,7 +21,7 @@ const passwordRegex = new RegExp("^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?
 function signUp(req, res, next) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const { email, name, password, profileImg } = req.body;
+            const { email, name, password } = req.body;
             if (!passwordRegex.test(password)) {
                 throw new Error(`Password must have at least 8 characters, At least one upper case,
        At least one lower case, At least one digit, At least one special character`);
@@ -36,18 +36,14 @@ function signUp(req, res, next) {
                 email,
                 password: encPassword,
                 role: "client",
-                profileImg: profileImg,
             };
             const user = yield Users_model_1.default.create(newUser);
             const token = jsonwebtoken_1.default.sign({ id: user._id }, process.env.SECRET_KEY, {
                 expiresIn: 60 * 60 * 24,
             });
-            if (user.profileImg.length === 0) {
-                user.profileImg =
-                    "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png";
-            }
+            console.log('funciona');
             const role = user.role;
-            const profileImgUser = user.profileImg;
+            const profileImgUser = "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png";
             yield mailer_1.transporter.sendMail((0, mailer_1.welcome)(newUser));
             res.status(201).json({
                 message: "user created successfully",

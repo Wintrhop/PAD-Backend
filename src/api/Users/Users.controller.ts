@@ -14,7 +14,7 @@ export async function signUp(
   next: NextFunction
 ): Promise<void> {
   try {
-    const { email, name, password, profileImg } = req.body;
+    const { email, name, password } = req.body;
     if (!passwordRegex.test(password)) {
       throw new Error(
         `Password must have at least 8 characters, At least one upper case,
@@ -31,7 +31,6 @@ export async function signUp(
       email,
       password: encPassword,
       role: "client",
-      profileImg: profileImg,
     };
     const user: IUser = await User.create(newUser);
     const token: string = jwt.sign(
@@ -41,12 +40,9 @@ export async function signUp(
         expiresIn: 60 * 60 * 24,
       }
     );
-    if (user.profileImg.length === 0) {
-      user.profileImg =
-        "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png";
-    }
+    console.log('funciona');
     const role = user.role;
-    const profileImgUser = user.profileImg;
+    const profileImgUser = "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png";
 
     await transporter.sendMail(welcome(newUser));
     res.status(201).json({
