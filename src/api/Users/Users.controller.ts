@@ -31,6 +31,7 @@ export async function signUp(
       email,
       password: encPassword,
       role: "client",
+      profileImg :"",
     };
     const user: IUser = await User.create(newUser);
     const token: string = jwt.sign(
@@ -40,14 +41,17 @@ export async function signUp(
         expiresIn: 60 * 60 * 24,
       }
     );
-    console.log('funciona');
     const role = user.role;
-    const profileImgUser = "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png";
+    if (user.profileImg.length === 0) {
+      user.profileImg =
+        "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png";
+    }
+    const profileImg = user.profileImg;
 
     await transporter.sendMail(welcome(newUser));
     res.status(201).json({
       message: "user created successfully",
-      data: { name, email, token, role, profileImgUser },
+      data: { name, email, token, role, profileImg },
     });
   } catch (err: any) {
     res
