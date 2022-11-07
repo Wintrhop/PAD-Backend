@@ -4,7 +4,7 @@ import {connect} from "./db";
 import { transporter, verify } from "./utils/mailer";
 
 
-const port = process.env.PORT;
+const port = process.env.PORT || 8080;
 connect();
 verify(transporter);
 
