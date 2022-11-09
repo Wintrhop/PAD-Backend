@@ -44,7 +44,7 @@ export async function signUp(
     const role = user.role;
     if (user.profileImg.length === 0) {
       user.profileImg =
-        "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png";
+        "https://www.seekpng.com/png/detail/966-9665493_my-profile-icon-blank-profile-image-circle.png";
     }
     const profileImg = user.profileImg;
 
@@ -88,7 +88,7 @@ export async function signIn(
     const name = user.name;
     if (user.profileImg.length === 0) {
       user.profileImg =
-        "https://w7.pngwing.com/pngs/81/570/png-transparent-profile-logo-computer-icons-user-user-blue-heroes-logo-thumbnail.png";
+        "https://www.seekpng.com/png/detail/966-9665493_my-profile-icon-blank-profile-image-circle.png";
     }
     const profileImg = user.profileImg;
     res.status(201).json({
