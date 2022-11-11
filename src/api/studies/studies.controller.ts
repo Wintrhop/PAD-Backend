@@ -72,6 +72,7 @@ export async function show(
         const studyAdvicer = user?.studiesAssignment.filter(
           (item: any) => studyId === item.toString()
         );
+        console.log('estudio en advicer?', studyAdvicer);
         if (!studyAdvicer) {
           throw new Error("Invalid Advicer");
         }

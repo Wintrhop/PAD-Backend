@@ -69,8 +69,20 @@ function show(req, res, next) {
             if (!(study === null || study === void 0 ? void 0 : study.user)) {
                 throw new Error("Study not found");
             }
-            if ((study === null || study === void 0 ? void 0 : study.user.toString()) !== userAuthId) {
-                throw new Error("Invalid User");
+            const user = yield Users_model_1.default.findById(userAuthId);
+            if ((user === null || user === void 0 ? void 0 : user.role) === "client") {
+                if ((study === null || study === void 0 ? void 0 : study.user.toString()) !== userAuthId) {
+                    throw new Error("user Invalid");
+                }
+            }
+            if ((user === null || user === void 0 ? void 0 : user.role) !== "admin") {
+                if ((user === null || user === void 0 ? void 0 : user.role) === "advicer") {
+                    const studyAdvicer = user === null || user === void 0 ? void 0 : user.studiesAssignment.filter((item) => studyId === item.toString());
+                    console.log('estudio en advicer?', studyAdvicer);
+                    if (!studyAdvicer) {
+                        throw new Error("Invalid Advicer");
+                    }
+                }
             }
             const studyShow = yield studies_model_1.default.findById(studyId).populate({
                 path: "user",
