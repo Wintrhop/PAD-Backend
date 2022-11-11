@@ -62,11 +62,20 @@ export async function show(
       throw new Error("Study not found");
     }
     const user = await User.findById(userAuthId);
-    if (user?.role === "client") {
+    if (user?.role !== "admin") {
       if (study?.user.toString() !== userAuthId) {
-        throw new Error("Invalid User");
+        if (user?.role === "advicer") {
+          const studyAdvicer = user?.studiesAssignment.filter(
+            (item: any) => studyId === item.toString()
+          );
+          if (!studyAdvicer) {
+            throw new Error("Invalid Advicer");
+          }
+        }
       }
+      
     }
+
     const studyShow = await Study.findById(studyId).populate({
       path: "user",
       select: "-_id -password -studies -advices -role -advicersApproved",
