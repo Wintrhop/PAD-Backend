@@ -57,11 +57,15 @@ export async function show(
     const userAuthId = req.userId;
     const { studyId } = req.params;
     const study = await Study.findById(studyId);
+
     if (!study?.user) {
       throw new Error("Study not found");
     }
-    if (study?.user.toString() !== userAuthId) {
-      throw new Error("Invalid User");
+    const user = await User.findById(userAuthId);
+    if (user?.role === "client") {
+      if (study?.user.toString() !== userAuthId) {
+        throw new Error("Invalid User");
+      }
     }
     const studyShow = await Study.findById(studyId).populate({
       path: "user",
