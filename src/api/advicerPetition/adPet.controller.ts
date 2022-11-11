@@ -109,4 +109,19 @@ export async function adminApproval(
           });
     }
 }
+export async function consultPetUser(
+  req: RequestWithUserId,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const userAuthId = req.userId;
+    const user = await User.findById(userAuthId)
+      .select("-_id role approved advicerPetition")
+      
+    res.status(201).json({ message: "consult Pet done", data: user });
+  } catch (err: any) {
+    res.status(404).json({ message: "Error", error: err.message });
+  }
+}
 
