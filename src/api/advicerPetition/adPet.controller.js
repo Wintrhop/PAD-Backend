@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.adminApproval = exports.create = exports.listAllAdPets = void 0;
+exports.consultPetUser = exports.adminApproval = exports.create = exports.listAllAdPets = void 0;
 const Users_model_1 = __importDefault(require("../Users/Users.model"));
 const adPet_model_1 = __importDefault(require("./adPet.model"));
 function listAllAdPets(req, res, next) {
@@ -111,3 +111,17 @@ function adminApproval(req, res, next) {
     });
 }
 exports.adminApproval = adminApproval;
+function consultPetUser(req, res, next) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            const userAuthId = req.userId;
+            const user = yield Users_model_1.default.findById(userAuthId)
+                .select("-_id role approved advicerPetition");
+            res.status(201).json({ message: "consult Pet done", data: user });
+        }
+        catch (err) {
+            res.status(404).json({ message: "Error", error: err.message });
+        }
+    });
+}
+exports.consultPetUser = consultPetUser;

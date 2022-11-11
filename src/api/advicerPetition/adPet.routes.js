@@ -8,4 +8,5 @@ const router = (0, express_1.Router)();
 router.route("/").post(auth_1.auth, formData_1.formData, adPet_controller_1.create);
 router.route("/adm/:petitionId").post(auth_1.auth, adPet_controller_1.adminApproval);
 router.route("/adm").get(auth_1.auth, adPet_controller_1.listAllAdPets);
+router.route("/userPet").get(auth_1.auth, adPet_controller_1.consultPetUser);
 exports.default = router;
