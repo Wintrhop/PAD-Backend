@@ -62,7 +62,7 @@ export async function show(
       throw new Error("Study not found");
     }
     const user = await User.findById(userAuthId);
-    if (user?.role !== "admin") {
+    if (user?.role === "client") {
       if (study?.user.toString() !== userAuthId) {
         throw new Error("user Invalid");
       }
