@@ -64,16 +64,18 @@ export async function show(
     const user = await User.findById(userAuthId);
     if (user?.role !== "admin") {
       if (study?.user.toString() !== userAuthId) {
-        if (user?.role === "advicer") {
-          const studyAdvicer = user?.studiesAssignment.filter(
-            (item: any) => studyId === item.toString()
-          );
-          if (!studyAdvicer) {
-            throw new Error("Invalid Advicer");
-          }
+        throw new Error("user Invalid");
+      }
+    }
+    if (user?.role !== "admin") {
+      if (user?.role === "advicer") {
+        const studyAdvicer = user?.studiesAssignment.filter(
+          (item: any) => studyId === item.toString()
+        );
+        if (!studyAdvicer) {
+          throw new Error("Invalid Advicer");
         }
       }
-      
     }
 
     const studyShow = await Study.findById(studyId).populate({
