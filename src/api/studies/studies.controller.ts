@@ -82,6 +82,9 @@ export async function show(
     const studyShow = await Study.findById(studyId).populate({
       path: "user",
       select: "-_id -password -studies -advices -role -advicersApproved",
+    }).populate({
+      path:"advice",
+      select:"advice",
     });
 
     res.status(201).json({ message: "Study found", data: studyShow });

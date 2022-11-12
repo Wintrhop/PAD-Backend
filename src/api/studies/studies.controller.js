@@ -87,6 +87,9 @@ function show(req, res, next) {
             const studyShow = yield studies_model_1.default.findById(studyId).populate({
                 path: "user",
                 select: "-_id -password -studies -advices -role -advicersApproved",
+            }).populate({
+                path: "advice",
+                select: "advice",
             });
             res.status(201).json({ message: "Study found", data: studyShow });
         }
