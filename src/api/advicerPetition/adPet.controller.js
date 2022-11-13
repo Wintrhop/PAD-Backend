@@ -26,7 +26,7 @@ function listAllAdPets(req, res, next) {
             if ((user === null || user === void 0 ? void 0 : user.role) !== "admin") {
                 throw new Error("Admin required");
             }
-            const adPets = yield adPet_model_1.default.find({ approvedBy: undefined }).populate({
+            const adPets = yield adPet_model_1.default.find().populate({
                 path: "user",
                 select: "-_id -password -studies -advices ",
             });

@@ -19,7 +19,7 @@ export async function listAllAdPets(
     if (user?.role !== "admin") {
       throw new Error("Admin required");
     }
-    const adPets = await AdPet.find({approvedBy:undefined}).populate({
+    const adPets = await AdPet.find().populate({
       path: "user",
       select: "-_id -password -studies -advices ",
     });
