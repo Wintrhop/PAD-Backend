@@ -28,7 +28,7 @@ function listAllAdPets(req, res, next) {
             }
             const adPets = yield adPet_model_1.default.find().populate({
                 path: "user",
-                select: "-_id -password -studies -advices ",
+                select: "-_id -password -advicersApproved ",
             });
             if (adPets.length === 0) {
                 throw new Error("Petitions for Advicer is empty");

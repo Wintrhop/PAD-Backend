@@ -21,7 +21,7 @@ export async function listAllAdPets(
     }
     const adPets = await AdPet.find().populate({
       path: "user",
-      select: "-_id -password -studies -advices ",
+      select: "-_id -password -advicersApproved ",
     });
 
     if (adPets.length === 0) {
